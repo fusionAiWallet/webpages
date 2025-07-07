@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Fusion Registration</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: sans-serif; padding: 20px; background-color: #f4f4f4; }
+        .container { max-width: 400px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        h2 { text-align: center; }
+        input { width: 100%; padding: 10px; margin-top: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; margin-top: 20px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Fusion Registration</h2>
+
+    <div id="step1">
+        <input type="text" id="firstName" placeholder="First Name" required />
+        <input type="text" id="surname" placeholder="Surname" required />
+        <input type="text" id="phone" placeholder="Phone Number" required />
+        <input type="text" id="bvn" placeholder="BVN" required />
+        <button onclick="nextStep()">Next</button>
+    </div>
+
+    <div id="step2" class="hidden">
+        <input type="password" id="pin" placeholder="Enter 4-digit PIN" maxlength="4" required />
+        <input type="password" id="confirmPin" placeholder="Retype PIN" maxlength="4" required />
+        <button onclick="submitForm()">Sign Up</button>
+    </div>
+
+    <div id="message"></div>
+</div>
+
+<script>
+    let tg = window.Telegram.WebApp;
+    tg.expand();
+
+    function nextStep() {
+        document.getElementById("step1").classList.add("hidden");
+        document.getElementById("step2").classList.remove("hidden");
+    }
+
+    async function submitForm() {
+        const firstName = document.getElementById("firstName").value;
+        const surname = document.getElementById("surname").value;
+        const phone = document.getElementById("phone").value;
+        const bvn = document.getElementById("bvn").value;
+        const pin = document.getElementById("pin").value;
+        const confirmPin = document.getElementById("confirmPin").value;
+        const telegramUsername = tg.initDataUnsafe?.user?.username || "unknown";
+
+        if (pin !== confirmPin) {
+            alert("PINs do not match.");
+            return;
+        }
+
+        const response = await fetch("https://your-api-url.com/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                first_name: firstName,
+                surname: surname,
+                phone: phone,
+                bvn: bvn,
+                telegram_username: telegramUsername,
+                pin: pin
+            })
+        });
+
+        const result = await response.json();
+        document.getElementById("step2").classList.add("hidden");
+        document.getElementById("message").innerText = result.message || "Registered successfully!";
+    }
+</script>
+</body>
+</html>
